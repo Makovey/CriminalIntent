@@ -1,4 +1,4 @@
-package org.makovey.criminalintent
+package org.makovey.criminalintent.domain
 
 import java.util.*
 
