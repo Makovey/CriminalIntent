@@ -42,11 +42,6 @@ class CrimeFragment : Fragment() {
             isEnabled = false
         }
 
-        solvedCheckBox.apply {
-            setOnCheckedChangeListener { _, isChecked ->
-                crime.isSolved = isChecked
-            }
-        }
 
         return view
     }
@@ -69,5 +64,12 @@ class CrimeFragment : Fragment() {
         }
 
         titleField.addTextChangedListener(titleWatcher)
+
+        solvedCheckBox.apply {
+            setOnCheckedChangeListener { _, isChecked ->
+                crime.isSolved = isChecked
+            }
+        }
+
     }
 }

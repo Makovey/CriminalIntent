@@ -2,7 +2,7 @@ package org.makovey.criminalintent
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import org.makovey.criminalintent.view.CrimeListFragment
+import org.makovey.criminalintent.controller.CrimeListFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
