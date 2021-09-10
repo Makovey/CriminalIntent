@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -22,6 +23,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "app/")
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -32,7 +40,8 @@ android {
 }
 
 dependencies {
-
+    kapt 'androidx.room:room-compiler:2.4.0-alpha04'
+    implementation 'androidx.room:room-runtime:2.4.0-alpha04'
     implementation('androidx.lifecycle:lifecycle-extensions:2.2.0')
     implementation('androidx.recyclerview:recyclerview:1.2.1')
     implementation 'androidx.core:core-ktx:1.6.0'

@@ -1,12 +1,13 @@
 package org.makovey.criminalintent.domain
 
-import java.text.SimpleDateFormat
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
+@Entity
 data class Crime(
-    val id: UUID = UUID.randomUUID(),
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
     var title: String = "",
-    var date: String = SimpleDateFormat("dd-MM-yyyy hh:mm").format(Calendar.getInstance().time),
-    var isSolved: Boolean = false,
-    var requiredPolice: Boolean = false
+    var date: Date = Date(),
+    var isSolved: Boolean = false
 )

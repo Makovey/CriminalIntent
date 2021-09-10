@@ -27,7 +27,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="6dp"
         android:text="@string/crime_date_label"
-        android:textColor="@color/black"
+        android:textColor="#7C7C7C"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@id/crime_solved"
         app:layout_constraintStart_toStartOf="parent"
