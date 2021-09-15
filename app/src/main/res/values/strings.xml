@@ -6,4 +6,5 @@
     <string name="crime_solved_label">Решено</string>
     <string name="crime_date_label">Дата</string>
     <string name="police">Вызвать полицию!</string>
+    <string name="change_date">Сменить дату</string>
 </resources>

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -21,13 +22,17 @@ import java.util.*
 
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG = "CrimeFragment"
+private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
 
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private lateinit var crime: Crime
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
+    private lateinit var dateTextView: TextView
+
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeDetailViewModel::class.java)
     }
@@ -49,12 +54,7 @@ class CrimeFragment : Fragment() {
         titleField = view.findViewById(R.id.crime_title) as EditText
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
-
-        dateButton.apply {
-            text = crime.date.toString()
-            isEnabled = false
-        }
-
+        dateTextView = view.findViewById(R.id.date) as TextView
 
         return view
     }
@@ -74,7 +74,7 @@ class CrimeFragment : Fragment() {
 
     private fun updateUI() {
         titleField.setText(crime.title)
-        dateButton.text = DateFormat.format("dd MMM yyyy hh:mm", crime.date).toString()
+        dateTextView.text = DateFormat.format("dd MMM yyyy", crime.date).toString()
         solvedCheckBox.apply {
             isChecked = crime.isSolved
             jumpDrawablesToCurrentState()
@@ -106,6 +106,12 @@ class CrimeFragment : Fragment() {
             }
         }
 
+        dateButton.setOnClickListener {
+            DatePickerFragment.newInstance(crime.date).apply {
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
+            }
+        }
     }
 
     override fun onStop() {
@@ -123,5 +129,10 @@ class CrimeFragment : Fragment() {
                 arguments = args
             }
         }
+    }
+
+    override fun onDateSelected(date: Date) {
+        crime.date = date
+        updateUI()
     }
 }

@@ -24,11 +24,19 @@
         android:layout_height="wrap_content"
         android:text="@string/crime_details_label" />
 
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        tools:text="14 Ноябрь 2020" />
+
     <Button
         android:id="@+id/crime_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="14 Ноябрь 11:56 2020" />
+        android:text="@string/change_date" />
 
     <CheckBox
         android:id="@+id/crime_solved"
