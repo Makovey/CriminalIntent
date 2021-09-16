@@ -10,4 +10,6 @@
     <string name="new_crime">Новое приступление</string>
     <string name="crime_empty">Преступлений пока нет</string>
     <string name="add_new_crime">Добавить новое приступление</string>
+    <string name="change_time">Сменить время</string>
+    <string name="crime_time_label">время</string>
 </resources>

@@ -68,7 +68,7 @@ class CrimeListFragment : Fragment() {
         addCrimeButton = view.findViewById(R.id.empty_crime_button) as Button
 
         crimeRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, true)
             crimeRecyclerView.adapter = adapter
         }
 
@@ -105,12 +105,14 @@ class CrimeListFragment : Fragment() {
 
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
         private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
+        private val timeTextView: TextView = itemView.findViewById(R.id.crime_time)
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
 
         fun bind(crime: Crime) {
             this.crime = crime
             titleTextView.text = crime.title
             dateTextView.text = DateFormat.format("dd-MM-yyyy", crime.date).toString()
+            timeTextView.text = crime.time
             solvedImageView.visibility = if (crime.isSolved) {
                 VISIBLE
             } else {
