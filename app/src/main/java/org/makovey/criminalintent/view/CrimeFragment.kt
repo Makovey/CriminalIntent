@@ -115,7 +115,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
                     suspectButton.text = suspect
 
                     val id = it.getString(1)
-                    Log.d("ID", "ID = $id")
 
                     val hasReadContactsPerform = ContextCompat.checkSelfPermission(
                         requireActivity(),
