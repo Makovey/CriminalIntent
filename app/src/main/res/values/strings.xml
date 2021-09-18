@@ -12,4 +12,14 @@
     <string name="add_new_crime">Добавить новое приступление</string>
     <string name="change_time">Сменить время</string>
     <string name="crime_time_label">время</string>
+    <string name="crime_suspect">Выбрать подозреваемого</string>
+    <string name="send_report_text">Отправить текстовый отчет</string>
+    <string name="crime_report">%1$s! Преступление было обнаружено %2$s. %3$s - %4$s, и %5$s</string>
+    <string name="crime_report_solved">Преступление решено</string>
+    <string name="crime_report_unsolved">Преступление не решено</string>
+    <string name="crime_report_no_suspect">нет подозреваемого.</string>
+    <string name="crime_report_suspect">подозреваемый это - %s.</string>
+    <string name="crime_report_subject">Отчет о преступлении</string>
+    <string name="send_report">Отправить отчет через...</string>
+    <string name="call_suspect">Позвонить подозреваемому</string>
 </resources>
