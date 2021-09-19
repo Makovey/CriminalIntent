@@ -8,6 +8,7 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
@@ -15,17 +16,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
+import android.view.ViewTreeObserver
+import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import org.makovey.criminalintent.R
 import org.makovey.criminalintent.domain.Crime
 import org.makovey.criminalintent.model.CrimeDetailViewModel
+import org.makovey.criminalintent.utils.getScaledBitmap
+import java.io.File
 import java.util.*
 
 private const val ARG_CRIME_ID = "crime_id"
@@ -37,6 +40,8 @@ private const val REQUEST_TIME = 1
 private const val DATE_FORMAT = "dd MMM yyyy"
 private const val REQUEST_CONTACT = 2
 private const val REQUEST_NUMBER = 3
+private const val REQUEST_PHOTO = 4
+private const val PHOTO_TAG = 5
 
 class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragment.Callbacks {
 
@@ -50,6 +55,14 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
     private lateinit var reportButton: Button
     private lateinit var suspectButton: Button
     private lateinit var suspectCallButton: Button
+    private lateinit var photoButton: ImageButton
+    private lateinit var photoView: ImageView
+    private lateinit var photoFile: File
+    private lateinit var photoUri: Uri
+
+    private lateinit var observer: ViewTreeObserver
+    private var width: Int? = null
+    private var height: Int? = null
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeDetailViewModel::class.java)
@@ -78,6 +91,15 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
         reportButton = view.findViewById(R.id.crime_report) as Button
         suspectButton = view.findViewById(R.id.crime_suspect) as Button
         suspectCallButton = view.findViewById(R.id.crime_call) as Button
+        photoButton = view.findViewById(R.id.crime_camera)
+        photoView = view.findViewById(R.id.crime_photo)
+
+        observer = photoView.viewTreeObserver
+
+        observer.addOnGlobalLayoutListener {
+            width = photoView.measuredWidth
+            height = photoView.measuredHeight
+        }
 
         return view
     }
@@ -89,6 +111,12 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
             Observer { crime ->
                 crime?.let {
                     this.crime = crime
+                    photoFile = crimeDetailViewModel.getPhotoFile(crime)
+                    photoUri = FileProvider.getUriForFile(
+                        requireActivity(),
+                        "org.makovey.criminalintent.fileprovider",
+                        photoFile
+                    )
                     updateUI()
                 }
             }
@@ -143,7 +171,14 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
                         crimeDetailViewModel.saveCrime(crime)
                     }
                 }
+            }
 
+            requestCode == REQUEST_PHOTO -> {
+                requireActivity().revokeUriPermission(
+                    photoUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+                updatePhotoView(width!!, height!!)
             }
         }
     }
@@ -159,6 +194,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
         if (crime.suspect.isNotEmpty()) {
             suspectButton.text = crime.suspect
         }
+
+        updatePhotoView(width!!, height!!)
     }
 
     private fun getCrimeReport(): String {
@@ -184,6 +221,15 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
             solvedString,
             suspect
         )
+    }
+
+    private fun updatePhotoView(width: Int, height: Int) {
+        if (photoFile.exists()) {
+            val bitmap = getScaledBitmap(photoFile.path, width, height)
+            photoView.setImageBitmap(bitmap)
+        } else {
+            photoView.setImageDrawable(null)
+        }
     }
 
     override fun onStart() {
@@ -256,7 +302,54 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks, TimePickerFragme
             startActivity(intent)
         }
 
+        photoButton.apply {
+            val packageManager: PackageManager = requireActivity().packageManager
 
+            val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val resolvedActivity: ResolveInfo? =
+                packageManager.resolveActivity(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
+            if (resolvedActivity == null) {
+                isEnabled = false
+            }
+
+            setOnClickListener {
+                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+
+                val cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(
+                    captureImage,
+                    PackageManager.MATCH_DEFAULT_ONLY
+                )
+
+                for (cameraActivity in cameraActivities) {
+                    requireActivity().grantUriPermission(
+                        cameraActivity.activityInfo.packageName,
+                        photoUri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                }
+
+                startActivityForResult(captureImage, REQUEST_PHOTO)
+            }
+        }
+
+        photoView.setOnClickListener {
+            if (!photoFile.exists()) Snackbar.make(
+                requireView(),
+                "Сначала сделайте фотографию",
+                Snackbar.LENGTH_SHORT
+            ).show()
+            else {
+                val dialog = ImageDialog().newInstance(photoFile.path)
+                dialog.setTargetFragment(this, PHOTO_TAG)
+                dialog.show(requireFragmentManager(), "file_path")
+            }
+        }
+
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        requireActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
     }
 
     override fun onStop() {
